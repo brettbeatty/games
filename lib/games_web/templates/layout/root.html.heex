@@ -9,11 +9,11 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body class="bg-theme-light flex flex-col min-h-screen max-w-screen-sm mx-auto text-theme-dark">
+  <body class="bg-theme flex flex-col min-h-screen max-w-screen-sm mx-auto text-theme-dark">
     <header class="text-center text-xl">
       <h1><%= @page_title %></h1>
     </header>
-    <main class="flex-grow">
+    <main class="flex flex-col flex-grow">
       <%= @inner_content %>
     </main>
     <footer class="text-center text-xs">
