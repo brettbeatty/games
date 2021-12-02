@@ -5,7 +5,15 @@ module.exports = {
   ],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        theme: {
+          dark: 'var(--theme-color-dark)',
+          DEFAULT: 'var(--theme-color)',
+          light: 'var(--theme-color-light)'
+        }
+      }
+    },
   },
   variants: {
     extend: {},

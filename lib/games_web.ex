@@ -22,6 +22,7 @@ defmodule GamesWeb do
       use Phoenix.Controller, namespace: GamesWeb
 
       import Plug.Conn
+      import GamesWeb.Theme
       alias GamesWeb.Router.Helpers, as: Routes
     end
   end
@@ -86,6 +87,7 @@ defmodule GamesWeb do
       import Phoenix.View
 
       import GamesWeb.ErrorHelpers
+      import GamesWeb.Theme
       alias GamesWeb.Router.Helpers, as: Routes
     end
   end
