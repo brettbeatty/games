@@ -16,7 +16,14 @@ config :games, GamesWeb.Endpoint,
   secret_key_base: "61Umet9cZWGBrdYISmuCEUvtyCjNKsSI9iRgA+J/BbpHg3GLgrmk+XUElSKbBztN",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    npx: [
+      "tailwindcss",
+      "--config=assets/tailwind.config.js",
+      "--input=assets/css/app.css",
+      "--output=priv/static/assets/app.css",
+      "--watch"
+    ]
   ]
 
 # ## SSL Support

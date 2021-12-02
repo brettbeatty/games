@@ -56,7 +56,16 @@ defmodule Games.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      "tailwind.deploy": [
+        <<
+          "cmd npx tailwindcss ",
+          "-c assets/tailwind.config.js ",
+          "-i assets/css/app.css ",
+          "-o priv/static/assets/app.css ",
+          "--minify"
+        >>
+      ],
+      "assets.deploy": ["esbuild default --minify", "tailwind.deploy", "phx.digest"]
     ]
   end
 end
