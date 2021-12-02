@@ -4,6 +4,6 @@ defmodule GamesWeb.PageController do
   plug :put_theme, :gray
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    render(conn, "index.html", page_title: "Games")
   end
 end
