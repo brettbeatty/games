@@ -53,7 +53,8 @@ defmodule Games.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
-      {:credo, "~> 1.7", ony: :dev, runtime: false}
+      {:credo, "~> 1.7", ony: :dev, runtime: false},
+      {:dialyxir, "~> 1.4", only: :dev, runtime: false}
     ]
   end
 
