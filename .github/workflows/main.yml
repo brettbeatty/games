@@ -20,8 +20,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: env.otp_version
-          elixir-version: env.elixir_version
+          otp-version: ${{ env.otp_version }}
+          elixir-version: ${{ env.elixir_version }}
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Cache dependencies
@@ -55,8 +55,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: env.otp_version
-          elixir-version: env.elixir_version
+          otp-version: ${{ env.otp_version }}
+          elixir-version: ${{ env.elixir_version }}
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Cache dependencies
@@ -89,8 +89,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: env.otp_version
-          elixir-version: env.elixir_version
+          otp-version: ${{ env.otp_version }}
+          elixir-version: ${{ env.elixir_version }}
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
@@ -115,8 +115,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: env.otp_version
-          elixir-version: env.elixir_version
+          otp-version: ${{ env.otp_version }}
+          elixir-version: ${{ env.elixir_version }}
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
@@ -142,8 +142,8 @@ jobs:
         id: beam
         uses: erlef/setup-beam@v1
         with:
-          otp-version: env.otp_version
-          elixir-version: env.elixir_version
+          otp-version: ${{ env.otp_version }}
+          elixir-version: ${{ env.elixir_version }}
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
