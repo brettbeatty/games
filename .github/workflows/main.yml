@@ -1,0 +1,40 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26.2.3
+          elixir-version: 1.16.1
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-test-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-deps-test-
+      - name: Install Dependencies
+        run: mix deps.get --only test
+      - name: Cache Build
+        uses: actions/cache@v3
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-test-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-build-test-
+      - name: Build
+        env:
+          MIX_ENV: test
+        run: mix compile
+      - name: Test
+        run: mix test
