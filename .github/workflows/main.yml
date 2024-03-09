@@ -173,6 +173,7 @@ jobs:
       - dialyzer
       - formatter
       - test
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     concurrency: deploy
     steps:
       - name: Checkout Code
