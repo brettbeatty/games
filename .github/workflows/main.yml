@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - main
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     name: Test
@@ -162,3 +165,23 @@ jobs:
           key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
       - name: Run Dialyzer
         run: mix dialyzer --format github
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    needs:
+      - credo
+      - dialyzer
+      - formatter
+      - test
+    concurrency: deploy
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: 0.2.12
+      - name: Deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only
