@@ -119,3 +119,46 @@ jobs:
           fail-on-cache-miss: true
       - name: Check Formatted
         run: mix format --check-formatted
+  dialyzer:
+    name: Check Dialyzer
+    runs-on: ubuntu-latest
+    needs: build-dev
+    steps:
+      - name: Install Elixir
+        id: beam
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26.1.2
+          elixir-version: 1.16.1
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Restore Deps
+        uses: actions/cache/restore@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Restore Build
+        uses: actions/cache/restore@v3
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Restore PLTs
+        id: plt_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: priv/plt
+          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
+      - name: Build PLTs
+        if: steps.plt_restore.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+      - name: Save PLTs
+        uses: actions/cache/save@v3
+        if: steps.plt_restore.outputs.cache-hit != 'true'
+        with:
+          path: priv/plt
+          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+      - name: Run Dialyzer
+        run: mix dialyzer --format github
