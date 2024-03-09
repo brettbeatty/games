@@ -1,4 +1,4 @@
-name: CI/CD
+name: Main
 on:
   push:
     branches:
@@ -19,30 +19,34 @@ jobs:
         with:
           otp-version: 26.1.2
           elixir-version: 1.16.1
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Cache Dependencies
-        uses: actions/cache@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: deps_cache
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-deps-test-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-deps-test-
-      - name: Install Dependencies
+          save-always: true
+      - name: Install dependencies
+        if: steps.deps_cache.outputs.cache-hit != 'true'
         run: mix deps.get --only test
-      - name: Cache Build
-        uses: actions/cache@v3
+      - name: Cache build
+        uses: actions/cache@v4
         with:
           path: _build
           key: ${{ runner.os }}-build-test-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-build-test-
+          save-always: true
       - name: Build
         env:
           MIX_ENV: test
         run: mix compile
-      - name: Test
+      - name: Run tests
         run: mix test
   build-dev:
-    name: Build Dev
+    name: Build dev
     runs-on: ubuntu-latest
     steps:
       - name: Install Elixir
@@ -50,28 +54,32 @@ jobs:
         with:
           otp-version: 26.1.2
           elixir-version: 1.16.1
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Cache Dependencies
-        uses: actions/cache@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: deps_cache
+        uses: actions/cache@v4
         with:
           path: deps
           key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-deps-dev-
-      - name: Install Dependencies
+          save-always: true
+      - name: Install dependencies
+        if: steps.deps_cache.outputs.cache-hit != 'true'
         run: mix deps.get --only dev
       - name: Cache Build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: _build
           key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-build-dev-
+          save-always: true
       - name: Build
         env:
           MIX_ENV: dev
         run: mix compile
   credo:
-    name: Check Credo
+    name: Credo
     runs-on: ubuntu-latest
     needs: build-dev
     steps:
@@ -80,24 +88,24 @@ jobs:
         with:
           otp-version: 26.1.2
           elixir-version: 1.16.1
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Restore Deps
-        uses: actions/cache/restore@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Restore dependencies from cache
+        uses: actions/cache/restore@v4
         with:
           path: deps
           key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Restore Build
-        uses: actions/cache/restore@v3
+      - name: Restore build from cache
+        uses: actions/cache/restore@v4
         with:
           path: _build
           key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Run Credo Checks
+      - name: Run credo checks
         run: mix credo --strict
   formatter:
-    name: Check Formatted
+    name: Formatter
     runs-on: ubuntu-latest
     needs: build-dev
     steps:
@@ -106,24 +114,24 @@ jobs:
         with:
           otp-version: 26.1.2
           elixir-version: 1.16.1
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Restore Deps
-        uses: actions/cache/restore@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Restore dependencies from cache
+        uses: actions/cache/restore@v4
         with:
           path: deps
           key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Restore Build
-        uses: actions/cache/restore@v3
+      - name: Restore build from cache
+        uses: actions/cache/restore@v4
         with:
           path: _build
           key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Check Formatted
+      - name: Check formatted
         run: mix format --check-formatted
   dialyzer:
-    name: Check Dialyzer
+    name: Dialyzer
     runs-on: ubuntu-latest
     needs: build-dev
     steps:
@@ -133,56 +141,51 @@ jobs:
         with:
           otp-version: 26.1.2
           elixir-version: 1.16.1
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Restore Deps
-        uses: actions/cache/restore@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Restore dependencies from cache
+        uses: actions/cache/restore@v4
         with:
           path: deps
           key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Restore Build
-        uses: actions/cache/restore@v3
+      - name: Restore build from cache
+        uses: actions/cache/restore@v4
         with:
           path: _build
           key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
           fail-on-cache-miss: true
-      - name: Restore PLTs
-        id: plt_restore
-        uses: actions/cache/restore@v3
+      - name: Cache PLTs
+        id: plt_cache
+        uses: actions/cache@v4
         with:
           path: priv/plt
           key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
+          save-always: true
       - name: Build PLTs
-        if: steps.plt_restore.outputs.cache-hit != 'true'
+        if: steps.plt_cache.outputs.cache-hit != 'true'
         run: mix dialyzer --plt
-      - name: Save PLTs
-        uses: actions/cache/save@v3
-        if: steps.plt_restore.outputs.cache-hit != 'true'
-        with:
-          path: priv/plt
-          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
-      - name: Run Dialyzer
+      - name: Run dialyzer
         run: mix dialyzer --format github
   deploy:
-    name: Deploy to Fly.io
+    name: Deploy
     runs-on: ubuntu-latest
     needs:
       - credo
       - dialyzer
       - formatter
       - test
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     concurrency: deploy
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           version: 0.2.12
-      - name: Deploy
+      - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: flyctl deploy --remote-only
