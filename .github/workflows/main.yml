@@ -14,7 +14,7 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.2.3
+          otp-version: 26.1.2
           elixir-version: 1.16.1
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -38,3 +38,84 @@ jobs:
         run: mix compile
       - name: Test
         run: mix test
+  build-dev:
+    name: Build Dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26.1.2
+          elixir-version: 1.16.1
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-deps-dev-
+      - name: Install Dependencies
+        run: mix deps.get --only dev
+      - name: Cache Build
+        uses: actions/cache@v3
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-build-dev-
+      - name: Build
+        env:
+          MIX_ENV: dev
+        run: mix compile
+  credo:
+    name: Check Credo
+    runs-on: ubuntu-latest
+    needs: build-dev
+    steps:
+      - name: Install Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26.1.2
+          elixir-version: 1.16.1
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Restore Deps
+        uses: actions/cache/restore@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Restore Build
+        uses: actions/cache/restore@v3
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Run Credo Checks
+        run: mix credo --strict
+  formatter:
+    name: Check Formatted
+    runs-on: ubuntu-latest
+    needs: build-dev
+    steps:
+      - name: Install Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26.1.2
+          elixir-version: 1.16.1
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Restore Deps
+        uses: actions/cache/restore@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-deps-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Restore Build
+        uses: actions/cache/restore@v3
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-dev-${{ hashFiles('mix.lock') }}
+          fail-on-cache-miss: true
+      - name: Check Formatted
+        run: mix format --check-formatted
