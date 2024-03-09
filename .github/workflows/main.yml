@@ -163,8 +163,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: priv/plt
-          key: ${{ runner.os }}-plt-${{ env.otp_version }}-${{ env.elixir_version }}-${{ hashFiles('mix.lock') }}
-          restore-keys: ${{ runner.os }}-plt-${{ env.otp_version }}-${{ env.elixir_version }}-
+          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
           save-always: true
       - name: Build PLTs
         if: steps.plt_cache.outputs.cache-hit != 'true'
