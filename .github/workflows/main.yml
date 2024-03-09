@@ -9,6 +9,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  otp_version: 26.1.2
+  elixir_version: 1.16.1
 jobs:
   test:
     name: Test
@@ -17,8 +20,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.1.2
-          elixir-version: 1.16.1
+          otp-version: env.otp_version
+          elixir-version: env.elixir_version
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Cache dependencies
@@ -52,8 +55,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.1.2
-          elixir-version: 1.16.1
+          otp-version: env.otp_version
+          elixir-version: env.elixir_version
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Cache dependencies
@@ -86,8 +89,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.1.2
-          elixir-version: 1.16.1
+          otp-version: env.otp_version
+          elixir-version: env.elixir_version
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
@@ -112,8 +115,8 @@ jobs:
       - name: Install Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.1.2
-          elixir-version: 1.16.1
+          otp-version: env.otp_version
+          elixir-version: env.elixir_version
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
@@ -139,8 +142,8 @@ jobs:
         id: beam
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 26.1.2
-          elixir-version: 1.16.1
+          otp-version: env.otp_version
+          elixir-version: env.elixir_version
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Restore dependencies from cache
@@ -160,8 +163,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: priv/plt
-          key: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
-          restore-keys: ${{ runner.os }}-plt-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
+          key: ${{ runner.os }}-plt-${{ env.otp_version }}-${{ env.elixir_version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-plt-${{ env.otp_version }}-${{ env.elixir_version }}-
           save-always: true
       - name: Build PLTs
         if: steps.plt_cache.outputs.cache-hit != 'true'
